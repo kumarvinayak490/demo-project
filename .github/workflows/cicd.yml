@@ -22,7 +22,15 @@ jobs:
         needs: build
         runs-on: self-hosted
         steps:
+            - name: Set Up Environment Variables
+              
+              run: |
+                echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
+                echo "MORGAN=${{ secrets.MORGAN }}" >> .env
+                echo "SECRET=${{ secrets.SECRET }}" >> .env
+            - name: Display .env file
+              run: cat .env
             - name: Pull image from the dockerhub
               run: docker pull kumarvinayak490/fortiche-app:latest
             - name: Run Docker Container
-              run: docker run -d -p 3000:3000 --name fortiche-app-container  -e MONGO_URI=${{ secrets.MONGO_URI }} kumarvinayak490/fortiche-app:latest
+              run: docker run -d -p 3000:3000 --name fortiche-app-container --env-file .env kumarvinayak490/fortiche-app:latest
