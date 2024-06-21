@@ -21,9 +21,9 @@ jobs:
             - name: Login to Docker hub
               run: docker login -u ${{secrets.DOCKER_USERNAME}} -p ${{secrets.DOCKER_PASSWORD}}
             - name: Build Docker Image
-              run: docker build -t kumarvinayak490/fortiche-backend-app .
+              run: docker build -t kumarvinayak490/fortiche-backend-server .
             - name: Publish the image to docker hub
-              run: docker push kumarvinayak490/fortiche-backend-app:latest 
+              run: docker push kumarvinayak490/fortiche-backend-server:latest 
 
     deploy:
         needs: build
@@ -34,13 +34,14 @@ jobs:
                 echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
                 echo "MORGAN=${{ secrets.MORGAN }}" >> .env
                 echo "SECRET=${{ secrets.SECRET }}" >> .env
+                echo "PORT=3000" >> .env
             - name: Display .env file
               run: cat .env
             - name: Pull image from the dockerhub
-              run: docker pull kumarvinayak490/fortiche-backend-app:latest
+              run: docker pull kumarvinayak490/fortiche-backend-server:latest
             - name: Stop Previous Container
               run: docker stop fortiche-app-container || true
             - name: Remove Previous Container
               run: docker rm fortiche-app-container || true
             - name: Run Docker Container
-              run: docker run -d -p 3000:3000 --name fortiche-app-container --env-file .env kumarvinayak490/fortiche-backend-app:latest
+              run: docker run -d -p 3000:3000 --name fortiche-app-container --env-file .env kumarvinayak490/fortiche-backend-server:latest
