@@ -11,12 +11,6 @@ jobs:
         steps:
             - name: Checkout Source
               uses: actions/checkout@v4
-            - name: Create .env file
-              run: |
-                echo NODE_ENV=production >> .env
-                echo MONGO_URI=${{ secrets.MONGO_URI }} >> .env
-                echo MORGAN=${{ secrets.MORGAN }} >> .env
-                echo SECRET=${{ secrets.SECRET }} >> .env
             - name: Login to Docker hub
               run: docker login -u ${{secrets.DOCKER_USERNAME}} -p ${{secrets.DOCKER_PASSWORD}}
             - name: Build Docker Image
@@ -31,4 +25,10 @@ jobs:
             - name: Pull image from the dockerhub
               run: docker pull kumarvinayak490/fortiche-app:latest
             - name: Run Docker Container
-              run: docker run -d -p 3000:3000 --name fortiche-app-container --env-file .env kumarvinayak490/fortiche-app
+              run: |
+                docker run -d -p 3000:3000 --name fortiche-app-container \
+                -e NODE_ENV=production \
+                -e MONGO_URI=${{ secrets.MONGO_URI }} \
+                -e MORGAN=${{ secrets.MORGAN }} \
+                -e SECRET=${{ secrets.SECRET }} \
+                kumarvinayak490/fortiche-app:latest
