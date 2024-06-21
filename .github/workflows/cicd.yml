@@ -1,0 +1,34 @@
+name: Deploy Fortiche App
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Source
+              uses: actions/checkout@v4
+            - name: Create .env file
+              run: |
+                echo NODE_ENV=production >> .env
+                echo MONGO_URI=${{ secrets.MONGO_URI }} >> .env
+                echo MORGAN=${{ secrets.MORGAN }} >> .env
+                echo SECRET=${{ secrets.SECRET }} >> .env
+            - name: Login to Docker hub
+              run: docker login -u ${{secrets.DOCKER_USERNAME}} -p ${{secrets.DOCKER_PASSWORD}}
+            - name: Build Docker Image
+              run: docker build -t kumarvinayak490/fortiche-app .
+            - name: Publish the image to docker hub
+              run: docker push kumarvinayak490/fortiche-app:latest 
+
+    deploy:
+        needs: build
+        runs-on: self-hosted
+        steps:
+            - name: Pull image from the dockerhub
+              run: docker pull kumarvinayak490/fortiche-app:latest
+            - name: Run Docker Container
+              run: docker run -d -p 3000:3000 --name fortiche-app-container --env-file .env kumarvinayak490/fortiche-app
