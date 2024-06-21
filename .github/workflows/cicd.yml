@@ -38,5 +38,9 @@ jobs:
               run: cat .env
             - name: Pull image from the dockerhub
               run: docker pull kumarvinayak490/fortiche-backend-app:latest
+            - name: Stop Previous Container
+              run: docker stop api-boilerplate || true
+            - name: Remove Previous Container
+              run: docker rm api-boilerplate || true
             - name: Run Docker Container
               run: docker run -d -p 3000:3000 --name fortiche-app-container --env-file .env kumarvinayak490/fortiche-backend-app:latest
